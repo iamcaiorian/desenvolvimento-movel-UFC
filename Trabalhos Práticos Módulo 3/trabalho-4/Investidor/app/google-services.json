@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "279146156578",
+    "project_id": "caio-sinvestidor",
+    "storage_bucket": "caio-sinvestidor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:279146156578:android:13e10cd27ba521bd70307b",
+        "android_client_info": {
+          "package_name": "com.example.investidor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5hR7ofVJ4LH5k7sQRUvASA8X3lCOovxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
