@@ -11,16 +11,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
-
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
-
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    suspend fun registerUser(
-        email: String,
-        password: String,
-        name: String
-    ): Boolean {
+    // Registro de usuário
+    suspend fun registerUser(email: String, password: String, name: String): Boolean {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val uid = result.user?.uid
@@ -36,20 +31,18 @@ class AuthRepository {
             }
             true
         } catch (e: Exception) {
-            Log.e("error", "Erro no cadastro")
+            Log.e("AuthRepository", "Erro no cadastro: ${e.message}")
             false
         }
     }
 
-    suspend fun loginUser(
-        email: String,
-        password: String
-    ): Boolean {
+    // Login com email e senha
+    suspend fun loginUser(email: String, password: String): Boolean {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
             true
         } catch (e: Exception) {
-            Log.e("error", "Erro no login")
+            Log.e("AuthRepository", "Erro no login: ${e.message}")
             false
         }
     }
@@ -59,31 +52,32 @@ class AuthRepository {
             auth.sendPasswordResetEmail(email).await()
             true
         } catch (e: Exception) {
-            Log.e("error", "Erro no resgatar a senha")
+            Log.e("AuthRepository", "Erro ao enviar email de recuperação: ${e.message}")
             false
         }
     }
 
-    suspend fun getUsername(): String? {
+    suspend fun getUserName(): String? {
         return try {
             val uid = auth.currentUser?.uid
             if (uid != null) {
                 val snapshot = firestore.collection("users").document(uid).get().await()
-                snapshot.getString("name")
+                snapshot.getString("name") // Retorna o nome salvo no Firestore
             } else {
-                return null
+                null
             }
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Erro ao buscar nome do usuário: ${e.message}")
             null
         }
     }
 
+    // Login com Google
     fun getGoogleSignInClient(context: Context): GoogleSignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(context.getString(com.example.authentication.R.string.default_web_client_id))
             .requestEmail()
             .build()
-
         return GoogleSignIn.getClient(context, gso)
     }
 
@@ -95,9 +89,10 @@ class AuthRepository {
 
             user?.let {
                 val uid = it.uid
-                val name = it.displayName ?: "usuário"
+                val name = it.displayName ?: "Usuário"
                 val email = it.email ?: ""
 
+                // Verifica se o usuário já existe no Firestore antes de salvar
                 val userRef = firestore.collection("users").document(uid)
                 val snapshot = userRef.get().await()
 
@@ -113,15 +108,17 @@ class AuthRepository {
             }
             true
         } catch (e: Exception) {
-            Log.e("error", "Erro no login com o Google")
+            Log.e("AuthRepository", "Erro no login Google: ${e.message}")
             false
         }
     }
 
+    // Logout
     fun logout() {
         auth.signOut()
     }
 
+    // Verifica se o usuário está logado
     fun isUserLogged(): Boolean {
         return auth.currentUser != null
     }
